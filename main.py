@@ -31,3 +31,21 @@ def prep(img):
     img = img.resize((224, 224), Image.BILINEAR)  # v6 is trained on sharp input (no 112 downsample)
     a = (np.asarray(img, dtype=np.float32) / 255 - MEAN) / STD
     return a.transpose(2, 0, 1)[None].astype(np.float32)
+
+
+
+def heatmap(img, cam):
+    """Overlay a class-activation heatmap on the photo; returns a data URL."""
+    cam = np.maximum(cam, 0)
+    cam = (cam - cam.min()) / (cam.max() - cam.min() + 1e-8)
+    base = img.copy()
+    base.thumbnail((512, 512))
+    c = Image.fromarray((cam * 255).astype(np.uint8)).resize(base.size, Image.BICUBIC)
+    v = np.asarray(c, dtype=np.float32) / 255
+    jet = np.stack([np.clip(1.5 - np.abs(4 * v - 3), 0, 1),
+                    np.clip(1.5 - np.abs(4 * v - 2), 0, 1),
+                    np.clip(1.5 - np.abs(4 * v - 1), 0, 1)], -1)
+    out = 0.55 * np.asarray(base, dtype=np.float32) / 255 + 0.45 * jet
+    buf = io.BytesIO()
+    Image.fromarray((out * 255).astype(np.uint8)).save(buf, "JPEG", quality=85)
+    return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
