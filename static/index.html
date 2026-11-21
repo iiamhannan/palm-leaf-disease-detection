@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Palm Leaf Scanner</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--leaf:#2f6b3f;--leaf-soft:#e3efe5;--date:#a9611b;--surface:#ffffff;--page:#f2f5f1;--line:#d9e1d8}
+[data-bs-theme=dark]{--leaf:#6fc287;--leaf-soft:#1c2a20;--date:#e0a05a;--surface:#18201b;--page:#0f1511;--line:#2a362d}
+body{background:var(--page);font-family:"Instrument Sans",system-ui,sans-serif}
+h1,h2,h3,.brand{font-family:"Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.01em}
+.navbar{background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{font-weight:700;color:var(--leaf)!important}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.drop{border:2px dashed var(--line);border-radius:12px;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;overflow:hidden}
+.drop:hover,.drop.over,.drop:focus-visible{border-color:var(--leaf);background:var(--leaf-soft);outline:none}
+.drop img{max-width:100%;max-height:240px;object-fit:contain}
+.drop i{font-size:2.4rem;color:var(--leaf)}
+.btn-leaf{background:var(--leaf);border-color:var(--leaf);color:#fff}
+[data-bs-theme=dark] .btn-leaf{color:#0f1511}
+.btn-leaf:hover:not(:disabled),.btn-leaf:focus-visible:not(:disabled),.btn-leaf:active:not(:disabled){background-color:var(--surface)!important;border-color:var(--leaf)!important;color:var(--bs-emphasis-color)!important}
+.btn-check:checked+.btn-outline-secondary,.btn-check:checked+.btn-outline-secondary:hover{background:var(--leaf);border-color:var(--leaf);color:#fff}
+[data-bs-theme=dark] .btn-check:checked+.btn-outline-secondary,[data-bs-theme=dark] .btn-check:checked+.btn-outline-secondary:hover{color:#0f1511}
+.verdict{font-family:"Bricolage Grotesque",sans-serif;font-size:2.2rem;font-weight:700;line-height:1.1}
+.bar{height:8px;border-radius:99px;background:var(--leaf-soft);overflow:hidden}
+.bar>div{height:100%;background:var(--leaf);transition:width .4s}
+.tile{border:1px solid var(--line);border-radius:10px;padding:.55rem .75rem;height:100%}
+.tile small{color:var(--bs-secondary-color)}
+.tile b{font-size:1.05rem}
+.sec{border-top:1px solid var(--line);margin-top:1rem;padding-top:1rem}
+.sec h3{font-size:1rem;margin-bottom:.6rem}
+.empty{color:var(--bs-secondary-color)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<nav class="navbar py-3">
+  <div class="container">
+    <span class="navbar-brand brand fs-4 mb-0"><i class="bi bi-flower2 me-2"></i>Palm Leaf Scanner</span>
+    <button id="themeBtn" class="btn btn-outline-secondary btn-sm" aria-label="Switch between light and dark mode"><i class="bi bi-moon-stars" id="themeIcon"></i></button>
+  </div>
+</nav>
+
+<main class="container py-4 py-lg-5">
+  <div class="mb-4">
+    <h1 class="display-6 fw-bold mb-1">Check a date palm leaf</h1>
+    <p class="text-secondary mb-0">Upload a clear photo of one leaf. You get the diagnosis, what to do, and whether the weather suits spraying and irrigation.</p>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="panel p-3 p-md-4">
+        <div id="drop" class="drop p-3" tabindex="0" role="button" aria-label="Choose a leaf photo">
+          <div id="hint"><i class="bi bi-cloud-arrow-up"></i>
+            <p class="fw-semibold mb-0 mt-2">Drop a leaf photo here or click to choose</p>
+            <small class="text-secondary">JPG or PNG</small></div>
+          <img id="preview" alt="Selected leaf" class="d-none">
+        </div>
+        <input id="file" type="file" accept="image/*" class="d-none">
+
+        <div class="mt-3">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="small fw-semibold">Location for weather</span>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Location mode">
+              <input type="radio" class="btn-check" name="loc" id="locAuto" checked><label class="btn btn-outline-secondary" for="locAuto">Auto</label>
+              <input type="radio" class="btn-check" name="loc" id="locMan"><label class="btn btn-outline-secondary" for="locMan">Manual</label>
+            </div>
+          </div>
+          <div id="autoNote" class="small text-secondary">Your device location is used when you scan. The browser will ask for permission.</div>
+          <div id="manual" class="d-none">
+            <div class="row g-2">
+              <div class="col-6"><label class="form-label small mb-1" for="lat">Latitude (-90 to 90)</label><input id="lat" class="form-control" inputmode="decimal" placeholder="-90 to 90"></div>
+              <div class="col-6"><label class="form-label small mb-1" for="lon">Longitude (-180 to 180)</label><input id="lon" class="form-control" inputmode="decimal" placeholder="-180 to 180"></div>
+            </div>
+            <div id="locStatus" class="small mt-2"></div>
+          </div>
+        </div>
+        <button id="scan" class="btn btn-leaf w-100 mt-3 py-2" disabled>Scan leaf</button>
+        <div id="need" class="small text-secondary mt-2"></div>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="panel p-3 p-md-4 h-100" aria-live="polite">
+        <h2 class="h5 mb-3">Result</h2>
+        <div id="empty" class="empty">Your diagnosis and advice will appear here after you scan a leaf.</div>
+        <div id="spin" class="d-none text-center py-5"><div class="spinner-border text-success" role="status"></div><div class="mt-2 text-secondary">Scanning and checking the weather...</div></div>
+        <div id="err" class="alert alert-danger d-none mb-0"></div>
+        <div id="res" class="d-none">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <span id="verdict" class="verdict"></span>
+            <span id="level" class="badge"></span>
+          </div>
+          <div class="mt-3 d-flex justify-content-between"><span>Confidence</span><b id="conf"></b></div>
+          <div class="bar mt-1"><div id="confBar"></div></div>
+          <p id="note" class="small mt-2 mb-0 d-none"></p>
+          <p id="problem" class="mt-3 mb-0 d-none"></p>
+
+          <div class="sec"><h3>Probabilities</h3><div id="probs" class="vstack gap-2"></div></div>
+
+          <div id="actWrap" class="sec d-none"><h3>What to do</h3><ul id="acts" class="mb-0 ps-3 vstack gap-1"></ul></div>
+
+          <div id="wxWrap" class="sec d-none">
+            <h3>Weather and timing</h3>
+            <div id="wxFor" class="small text-secondary mb-2"></div>
+            <div id="tiles" class="row g-2 mb-2"></div>
+            <p id="spr" class="mb-0 d-none"><b>Spraying:</b> <span></span></p>
+          </div>
+
+          <div id="irrWrap" class="sec d-none"><h3>Irrigation</h3><p id="irr" class="mb-0"></p></div>
+          <p id="wxMsg" class="small text-secondary mt-3 mb-0 d-none"></p>
+
+          <div id="heatWrap" class="sec d-none">
+            <h3>Where the model looked</h3>
+            <img id="heat" class="img-fluid rounded w-100" alt="Heatmap over the leaf photo">
+            <div class="small text-secondary mt-1">Warm colours mark the areas that influenced the result most.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="text-secondary small mt-4 mb-0">Follow the product label and ask a local agriculture officer if you are unsure. The model was trained on date palm leaf photos only. Other plants, trunks and fruit are not supported.</p>
+</main>
+
+<script>
+const $=id=>document.getElementById(id), root=document.documentElement;
+const show=(id,on)=>$(id).classList.toggle("d-none",!on);
+function fail(d,fb){const e=new Error(d&&typeof d.detail==="string"?d.detail:fb);e.friendly=true;return e}
+function niceErr(e){return e&&e.friendly?e.message:(e instanceof TypeError?"Cannot reach the server. Make sure the app is running, then try again.":"Something went wrong. Please try again.")}
+
+// Theme
+function setTheme(t){root.setAttribute("data-bs-theme",t);$("themeIcon").className=t==="dark"?"bi bi-sun":"bi bi-moon-stars";try{localStorage.setItem("theme",t)}catch(e){}}
+let saved=null;try{saved=localStorage.getItem("theme")}catch(e){}
+setTheme(saved||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
+$("themeBtn").onclick=()=>setTheme(root.getAttribute("data-bs-theme")==="dark"?"light":"dark");
+
+// Photo and location. A scan needs a photo and a usable location.
+let file=null;
+const isManual=()=>$("locMan").checked;
+function manualLoc(){const la=parseFloat($("lat").value),lo=parseFloat($("lon").value);return(la>=-90&&la<=90&&lo>=-180&&lo<=180)?{lat:la,lon:lo}:null}
+function refresh(){
+  const man=isManual(),loc=man?manualLoc():null;
+  show("manual",man);show("autoNote",!man);
+  if(man){const st=$("locStatus");st.textContent=loc?`Location set: ${loc.lat}, ${loc.lon}`:"Enter latitude (-90 to 90) and longitude (-180 to 180).";st.className="small mt-2 "+(loc?"text-success":"text-secondary")}
+  const need=[];if(!file)need.push("a leaf photo");if(man&&!loc)need.push("a valid latitude and longitude");
+  $("scan").disabled=need.length>0;
+  $("need").textContent=need.length?"Add "+need.join(" and ")+" to scan.":"";
+}
+$("locAuto").onchange=refresh;$("locMan").onchange=refresh;$("lat").oninput=refresh;$("lon").oninput=refresh;
+function getPos(){return new Promise((res,rej)=>{
+  if(!window.isSecureContext||!navigator.geolocation)return rej();
+  navigator.geolocation.getCurrentPosition(p=>res({lat:+p.coords.latitude.toFixed(4),lon:+p.coords.longitude.toFixed(4)}),()=>rej(),{timeout:10000,maximumAge:600000})})}
+
+const drop=$("drop"),input=$("file");
+function pick(f){if(!f||!f.type.startsWith("image/"))return;file=f;$("preview").src=URL.createObjectURL(f);
+  $("preview").classList.remove("d-none");$("hint").classList.add("d-none");refresh()}
+drop.onclick=()=>input.click();
+drop.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();input.click()}};
+input.onchange=()=>pick(input.files[0]);
+["dragover","dragenter"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over")}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over")}));
+drop.addEventListener("drop",e=>pick(e.dataTransfer.files[0]));
+refresh();
+
+// Scan
+const pct=x=>(x*100).toFixed(1)+"%";
+const LEVEL={High:"text-bg-success",Medium:"text-bg-warning",Low:"text-bg-danger"};
+$("scan").onclick=async()=>{
+  if(!file)return;
+  show("empty",false);show("res",false);show("err",false);show("spin",true);$("scan").disabled=true;
+  try{
+    let loc;
+    if(isManual()){loc=manualLoc();if(!loc)throw fail(null,"Enter a valid latitude (-90 to 90) and longitude (-180 to 180).")}
+    else{try{loc=await getPos()}catch(e){throw fail(null,"Your location could not be read. Allow location access in the browser, or switch to Manual and enter latitude and longitude.")}}
+    const fd=new FormData();fd.append("file",file);fd.append("lat",loc.lat);fd.append("lon",loc.lon);
+    const r=await fetch("/predict",{method:"POST",body:fd});
+    const d=await r.json();
+    if(!r.ok)throw fail(d,"The scan could not be completed. Please try again.");
+    if(!d.advice)throw fail(null,"The server is running an old version of the app. Replace main.py with the latest one and restart it.");
+    render(d,loc);
+  }catch(e){$("err").textContent=niceErr(e);show("err",true)}
+  show("spin",false);refresh();
+};
+
+// Only the weather items that matter for each result
+const WX={"Brown Spot":["rain","humidity","wind"],"White Scale":["rain","temp","wind"],"Healthy":["rain"]};
+function render(d,loc){
+  const a=d.advice,w=d.weather,ok=!!w&&a.level!=="Low";
+  $("verdict").textContent=d.label;
+  $("verdict").style.color=d.label==="Healthy"?"var(--leaf)":"var(--date)";
+  $("level").className="badge "+LEVEL[a.level];$("level").textContent=a.level+" confidence";
+  $("conf").textContent=pct(d.confidence);$("confBar").style.width=pct(d.confidence);
+  $("note").textContent=a.note||"";show("note",!!a.note);
+  $("problem").textContent=a.problem||"";show("problem",!!a.problem);
+  $("probs").innerHTML=Object.entries(d.probabilities).sort((x,y)=>y[1]-x[1]).map(([k,v])=>
+    `<div><div class="d-flex justify-content-between small"><span>${k}</span><span>${pct(v)}</span></div><div class="bar"><div style="width:${pct(v)}"></div></div></div>`).join("");
+  $("acts").innerHTML=a.actions.map(x=>`<li>${x}</li>`).join("");show("actWrap",a.actions.length>0);
+  show("wxWrap",ok);show("irrWrap",ok&&!!a.irrigation);
+  if(ok){
+    $("wxFor").textContent=`Forecast for ${loc.lat}, ${loc.lon}`;
+    const T={rain:["Rain, next 24 h",(w.rain_expected?"Expected":"Not expected")+" ("+w.rain_probability+"%)"],
+      temp:["Temperature",w.temperature+" °C"],humidity:["Humidity",w.humidity+"%"],wind:["Wind",w.wind+" km/h"]};
+    $("tiles").innerHTML=(WX[d.label]||["rain"]).map(k=>`<div class="col-6 col-md-4"><div class="tile"><small>${T[k][0]}</small><br><b>${T[k][1]}</b></div></div>`).join("");
+    $("spr").querySelector("span").textContent=a.spraying||"";show("spr",!!a.spraying);
+    $("irr").textContent=a.irrigation||"";
+  }
+  $("wxMsg").textContent=d.weather_error||"";show("wxMsg",!!d.weather_error);
+  show("heatWrap",!!d.heatmap);if(d.heatmap)$("heat").src=d.heatmap;
+  show("res",true);
+}
+</script>
+</body>
+</html>
