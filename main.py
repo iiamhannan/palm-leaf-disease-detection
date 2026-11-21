@@ -25,3 +25,9 @@ RAIN_PROB = 60   # percent, highest chance in the next 24 h
 RAIN_MM = 2.0    # mm, total in the next 24 h
 WIND_MAX = 20    # km/h, above this spray drifts
 OIL_MAX_TEMP = 35  # deg C, mineral oil can scorch leaves above this
+
+
+def prep(img):
+    img = img.resize((224, 224), Image.BILINEAR)  # v6 is trained on sharp input (no 112 downsample)
+    a = (np.asarray(img, dtype=np.float32) / 255 - MEAN) / STD
+    return a.transpose(2, 0, 1)[None].astype(np.float32)
