@@ -33,7 +33,6 @@ def prep(img):
     return a.transpose(2, 0, 1)[None].astype(np.float32)
 
 
-
 def heatmap(img, cam):
     """Overlay a class-activation heatmap on the photo; returns a data URL."""
     cam = np.maximum(cam, 0)
@@ -49,3 +48,25 @@ def heatmap(img, cam):
     buf = io.BytesIO()
     Image.fromarray((out * 255).astype(np.uint8)).save(buf, "JPEG", quality=85)
     return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+
+
+async def get_weather(lat, lon):
+    params = {
+        "latitude": lat, "longitude": lon, "timezone": "auto", "forecast_days": 3,
+        "current": "temperature_2m,relative_humidity_2m,wind_speed_10m",
+        "hourly": "precipitation_probability,precipitation",
+    }
+    async with httpx.AsyncClient(timeout=10) as c:
+        r = await c.get("https://api.open-meteo.com/v1/forecast", params=params)
+        r.raise_for_status()
+        d = r.json()
+    h, cur = d["hourly"], d["current"]
+    now = cur["time"][:13] + ":00"
+    i = next((k for k, t in enumerate(h["time"]) if t >= now), 0)
+    prob = max(x or 0 for x in h["precipitation_probability"][i:i + 24])
+    mm = sum(x or 0 for x in h["precipitation"][i:i + 24])
+    return {
+        "temperature": cur["temperature_2m"], "humidity": cur["relative_humidity_2m"],
+        "wind": cur["wind_speed_10m"], "rain_probability": prob, "rain_mm": round(mm, 1),
+        "rain_expected": prob >= RAIN_PROB or mm >= RAIN_MM,
+    }
