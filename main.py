@@ -78,3 +78,9 @@ ACTIONS = {
         "Apply a copper-based fungicide, following the product label.",
         "Water at the base or by drip. Avoid wetting the crown and leaves.",
     ],
+    "White Scale": [
+        "Prune and bag heavily infested fronds, and dispose of them away from the grove.",
+        "Spray horticultural mineral oil on the infested fronds, following the product label.",
+        "Protect natural predators of scale insects. Avoid broad-spectrum insecticides unless local advice says otherwise.",
+        "Check nearby palms and re-inspect in about two weeks.",
+    ],
