@@ -89,3 +89,10 @@ ACTIONS = {
         "Keep checking the leaves regularly.",
     ],
 }
+
+
+PROBLEM = {
+    "Brown Spot": "A fungal leaf spot disease. Dark brown spots kill leaf tissue and weaken the palm, and the fungus can spread in humid or wet conditions.",
+    "White Scale": "A scale insect infestation. White crusts on the fronds suck sap from the leaf, which causes yellowing and drying.",
+    "Healthy": "No sign of Brown Spot or White Scale was found on this leaf.",
+}
