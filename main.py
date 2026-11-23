@@ -84,3 +84,8 @@ ACTIONS = {
         "Protect natural predators of scale insects. Avoid broad-spectrum insecticides unless local advice says otherwise.",
         "Check nearby palms and re-inspect in about two weeks.",
     ],
+    "Healthy": [
+        "No treatment is needed.",
+        "Keep checking the leaves regularly.",
+    ],
+}
