@@ -70,3 +70,11 @@ async def get_weather(lat, lon):
         "wind": cur["wind_speed_10m"], "rain_probability": prob, "rain_mm": round(mm, 1),
         "rain_expected": prob >= RAIN_PROB or mm >= RAIN_MM,
     }
+
+
+ACTIONS = {
+    "Brown Spot": [
+        "Remove badly spotted leaves and fallen leaf debris, and dispose of them away from the palm.",
+        "Apply a copper-based fungicide, following the product label.",
+        "Water at the base or by drip. Avoid wetting the crown and leaves.",
+    ],
