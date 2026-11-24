@@ -134,3 +134,9 @@ def make_advice(label, conf, wx):
 
 app = FastAPI(title="Palm Leaf Scanner")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error(request: Request, exc: RequestValidationError):
+    return JSONResponse(status_code=422, content={
+        "detail": "Please choose a photo, and make sure latitude (-90 to 90) and longitude (-180 to 180) are valid."})
