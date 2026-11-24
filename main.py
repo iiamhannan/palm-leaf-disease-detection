@@ -96,3 +96,18 @@ PROBLEM = {
     "White Scale": "A scale insect infestation. White crusts on the fronds suck sap from the leaf, which causes yellowing and drying.",
     "Healthy": "No sign of Brown Spot or White Scale was found on this leaf.",
 }
+
+
+def make_advice(label, conf, wx):
+    if conf < 0.60:
+        return {"level": "Low", "problem": None, "actions": [], "irrigation": None, "spraying": None,
+                "note": "The result is uncertain. Retake the photo in good light, close to a single leaf."}
+    # A "Healthy" answer needs more certainty, because a missed infestation is the costlier mistake
+    level = "High" if conf >= (0.95 if label == "Healthy" else 0.85) else "Medium"
+    if level == "High":
+        note = None
+    elif label == "Healthy":
+        note = "Not fully sure this leaf is healthy. Look closely for white crusts or brown spots."
+    else:
+        note = "Confirm by inspecting the leaf closely before you treat."
+    irrigation = spraying = None
