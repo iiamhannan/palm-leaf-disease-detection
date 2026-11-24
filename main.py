@@ -140,3 +140,9 @@ app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 async def validation_error(request: Request, exc: RequestValidationError):
     return JSONResponse(status_code=422, content={
         "detail": "Please choose a photo, and make sure latitude (-90 to 90) and longitude (-180 to 180) are valid."})
+
+
+@app.exception_handler(Exception)
+async def unexpected_error(request: Request, exc: Exception):
+    return JSONResponse(status_code=500, content={
+        "detail": "Something went wrong on the server. Please try again."})
