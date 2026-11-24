@@ -111,3 +111,22 @@ def make_advice(label, conf, wx):
     else:
         note = "Confirm by inspecting the leaf closely before you treat."
     irrigation = spraying = None
+    if wx:
+        if wx["rain_expected"]:
+            irrigation = "Hold irrigation. Rain is expected in the next 24 hours."
+        elif label == "Brown Spot":
+            irrigation = "Continue the normal schedule, watering at the base only."
+        else:
+            irrigation = "Continue the normal irrigation schedule."
+        if label != "Healthy":
+            if wx["rain_expected"]:
+                spraying = "Wait to spray. Rain in the next 24 hours would wash the product off. Spray once the leaves are dry."
+            elif wx["wind"] >= WIND_MAX:
+                spraying = f"Wait to spray. Wind is {wx['wind']:.0f} km/h and the spray would drift. Try a calmer time."
+            elif label == "White Scale" and wx["temperature"] >= OIL_MAX_TEMP:
+                spraying = f"Wait to spray. Mineral oil can scorch leaves at {wx['temperature']:.0f} °C. Spray in the early morning or evening."
+            else:
+                spraying = "Conditions are suitable for spraying now."
+            if label == "Brown Spot" and wx["humidity"] >= 70:
+                spraying += f" Humidity is high ({wx['humidity']:.0f}%), which helps the fungus spread, so inspect nearby leaves soon."
+    return {"level": level, "note": note, "problem": PROBLEM[label], "actions": ACTIONS[label], "irrigation": irrigation, "spraying": spraying}
