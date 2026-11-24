@@ -130,3 +130,7 @@ def make_advice(label, conf, wx):
             if label == "Brown Spot" and wx["humidity"] >= 70:
                 spraying += f" Humidity is high ({wx['humidity']:.0f}%), which helps the fungus spread, so inspect nearby leaves soon."
     return {"level": level, "note": note, "problem": PROBLEM[label], "actions": ACTIONS[label], "irrigation": irrigation, "spraying": spraying}
+
+
+app = FastAPI(title="Palm Leaf Scanner")
+app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
