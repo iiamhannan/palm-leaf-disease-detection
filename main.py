@@ -151,3 +151,41 @@ async def unexpected_error(request: Request, exc: Exception):
 @app.get("/")
 def home():
     return FileResponse(BASE / "static" / "index.html")
+
+
+@app.post("/predict")
+async def predict(file: UploadFile = File(...),
+                  lat: Optional[float] = Form(None, ge=-90, le=90),
+                  lon: Optional[float] = Form(None, ge=-180, le=180)):
+    if not (file.content_type or "").startswith("image/"):
+        raise HTTPException(400, "Please upload an image file (JPG or PNG).")
+    try:
+        img = Image.open(io.BytesIO(await file.read())).convert("RGB")
+    except Exception:
+        raise HTTPException(400, "This image could not be read. Try another photo.")
+    try:
+        outs = sess.run(None, {"input": prep(img)})
+    except Exception:
+        raise HTTPException(500, "The model could not analyse this image. Try a different photo.")
+    logits = outs[0][0]
+    e = np.exp(logits - logits.max())
+    probs = (e / e.sum()).tolist()
+    top = max(range(len(CLASSES)), key=lambda i: probs[i])
+    label = NAMES[CLASSES[top]]
+
+    wx, wx_error = None, None
+    if lat is not None and lon is not None:
+        try:
+            wx = await get_weather(lat, lon)
+        except Exception:
+            wx_error = "Weather could not be loaded, so irrigation and spraying advice is skipped."
+
+    result = {
+        "label": label, "confidence": probs[top],
+        "probabilities": {NAMES[c]: p for c, p in zip(CLASSES, probs)},
+        "weather": wx, "weather_error": wx_error,
+        "advice": make_advice(label, probs[top], wx),
+    }
+    if len(outs) > 1:
+        result["heatmap"] = heatmap(img, outs[1][0][top])
+    return result
