@@ -146,3 +146,8 @@ async def validation_error(request: Request, exc: RequestValidationError):
 async def unexpected_error(request: Request, exc: Exception):
     return JSONResponse(status_code=500, content={
         "detail": "Something went wrong on the server. Please try again."})
+
+
+@app.get("/")
+def home():
+    return FileResponse(BASE / "static" / "index.html")
