@@ -49,3 +49,9 @@ The test set includes small groups: our own White Scale photos (7 of 8 correct),
 ## Training
 See `notebooks/palm_leaf_training.ipynb`. `notebooks/split_v3.csv` is the train, validation and test split used for the reported results. The notebook documents the pipeline, and a rerun gives slightly different numbers because training is random (two training runs gave 6 and 10 errors out of 736).
 
+## Limitations
+- Trained on date palm leaf photos only. Other plants, trunks and fruit are not supported.
+- The three classes were photographed in different setups, and only 31 healthy photos have a natural background.
+- Confidence shows how sure the model is, not how severe the infection is.
+- The irrigation advice comes from the weather forecast, not from the leaf image.
+- The advice is general guidance. Follow the product label and ask a local agriculture officer.
