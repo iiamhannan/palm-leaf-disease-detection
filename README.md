@@ -21,6 +21,7 @@ main.py              FastAPI backend (prediction, heatmap, weather advice)
 static/index.html    Web interface (Bootstrap 5)
 palm_model_v6.onnx   Model, runs with ONNX Runtime (no PyTorch needed)
 notebooks/           Training notebook and the data split
+figures/             Result figures
 ```
 
 ## Model
@@ -41,14 +42,10 @@ Near-duplicate images are kept in the same split (group-wise split). On the comb
 | Healthy | 0.995 | 0.979 | 0.987 | 192 |
 | White Scale | 0.993 | 0.993 | 0.993 | 297 |
 
+![Confusion matrix](figures/confusion_matrix.png)
+
 The test set includes small groups: our own White Scale photos (7 of 8 correct), natural-background healthy photos (6 of 8 correct) and White Scale images from the second Kaggle dataset (30 of 30 correct). These groups are small, so treat them as rough indications.
 
 ## Training
 See `notebooks/palm_leaf_training.ipynb`. `notebooks/split_v3.csv` is the train, validation and test split used for the reported results. The notebook documents the pipeline, and a rerun gives slightly different numbers because training is random (two training runs gave 6 and 10 errors out of 736).
 
-## Limitations
-- Trained on date palm leaf photos only. Other plants, trunks and fruit are not supported.
-- The three classes were photographed in different setups, and only 31 healthy photos have a natural background.
-- Confidence shows how sure the model is, not how severe the infection is.
-- The irrigation advice comes from the weather forecast, not from the leaf image.
-- The advice is general guidance. Follow the product label and ask a local agriculture officer.
